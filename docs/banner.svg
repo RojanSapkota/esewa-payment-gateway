@@ -1,0 +1,164 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="100%" height="100%">
+  <defs>
+    <!-- Background Dark Gradient -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070b12" />
+      <stop offset="40%" stop-color="#0c1322" />
+      <stop offset="100%" stop-color="#030712" />
+    </linearGradient>
+
+    <!-- Deep Ambient Glows -->
+    <radialGradient id="emeraldRadial" cx="50%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.32" />
+      <stop offset="45%" stop-color="#059669" stop-opacity="0.10" />
+      <stop offset="100%" stop-color="#070b12" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="cyanAccent" cx="85%" cy="75%" r="45%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#030712" stop-opacity="0" />
+    </radialGradient>
+
+    <radialGradient id="indigoAccent" cx="15%" cy="80%" r="45%">
+      <stop offset="0%" stop-color="#6366f1" stop-opacity="0.18" />
+      <stop offset="100%" stop-color="#030712" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Glowing Brand Gradients -->
+    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6ee7b7" />
+      <stop offset="50%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#06b6d4" />
+    </linearGradient>
+
+    <linearGradient id="headingGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="60%" stop-color="#f1f5f9" />
+      <stop offset="100%" stop-color="#cbd5e1" />
+    </linearGradient>
+
+    <!-- Glass Card Gradients -->
+    <linearGradient id="glassCard" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.75" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.85" />
+    </linearGradient>
+
+    <linearGradient id="glassCardHighlight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.8" />
+    </linearGradient>
+
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155" stop-opacity="0.8" />
+      <stop offset="50%" stop-color="#10b981" stop-opacity="0.4" />
+      <stop offset="100%" stop-color="#1e293b" stop-opacity="0.4" />
+    </linearGradient>
+
+    <linearGradient id="borderHighlight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#059669" stop-opacity="0.3" />
+    </linearGradient>
+
+    <!-- Modern Mesh Grid Pattern -->
+    <pattern id="meshGrid" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#334155" stroke-width="0.8" stroke-opacity="0.22" />
+      <circle cx="0" cy="0" r="1.2" fill="#64748b" fill-opacity="0.4" />
+    </pattern>
+
+    <!-- Shadow & Glow Filters -->
+    <filter id="cardShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#000000" flood-opacity="0.55" />
+    </filter>
+    <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Layer -->
+  <rect width="1200" height="420" fill="url(#bgGrad)" />
+  <rect width="1200" height="420" fill="url(#emeraldRadial)" />
+  <rect width="1200" height="420" fill="url(#cyanAccent)" />
+  <rect width="1200" height="420" fill="url(#indigoAccent)" />
+  <rect width="1200" height="420" fill="url(#meshGrid)" />
+
+  <!-- Outer Modern Frame -->
+  <rect x="1" y="1" width="1198" height="418" fill="none" stroke="#334155" stroke-width="1.2" stroke-opacity="0.4" />
+
+  <!-- Ambient Light Orbs -->
+  <circle cx="200" cy="80" r="2" fill="#34d399" opacity="0.6" />
+  <circle cx="1020" cy="110" r="2.5" fill="#38bdf8" opacity="0.7" />
+  <circle cx="150" cy="320" r="2" fill="#818cf8" opacity="0.5" />
+  <circle cx="1060" cy="300" r="2" fill="#34d399" opacity="0.6" />
+
+  <!-- Center Content Area -->
+  <g transform="translate(600, 150)" text-anchor="middle">
+
+    <!-- Top Badge Pill (Live / Zero-Fee Status) -->
+    <g transform="translate(0, -90)">
+      <rect x="-170" y="-16" width="340" height="32" rx="16" fill="#0f172a" stroke="url(#borderHighlight)" stroke-width="1.2" filter="url(#cardShadow)" />
+      <circle cx="-145" cy="0" r="4.5" fill="#10b981">
+        <animate attributeName="opacity" values="1;0.4;1" dur="2.5s" repeatCount="indefinite" />
+      </circle>
+      <text x="8" y="4.5" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" fill="#34d399" letter-spacing="1.8">
+        AUTONOMOUS PAYMENT GATEWAY
+      </text>
+    </g>
+
+    <!-- Main Title -->
+    <text y="-22" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="46" font-weight="800" fill="url(#headingGrad)" letter-spacing="-1.2">
+      eSewa <tspan fill="url(#brandGrad)">Payment Gateway</tspan>
+    </text>
+
+    <!-- Modern Tagline -->
+    <text y="22" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="17" font-weight="400" fill="#94a3b8" letter-spacing="0.3">
+      Zero Transaction Fees • No Merchant PAN/VAT Required • Instant Payment Verification
+    </text>
+
+    <!-- Main Feature Highlights (Modern Glassmorphic Cards) -->
+    <g transform="translate(0, 78)">
+
+      <!-- Card 1: 0% Fees -->
+      <g transform="translate(-460, 0)">
+        <rect x="0" y="0" width="215" height="74" rx="14" fill="url(#glassCardHighlight)" stroke="url(#borderHighlight)" stroke-width="1.2" filter="url(#cardShadow)" />
+        <circle cx="34" cy="37" r="16" fill="#10b981" fill-opacity="0.15" />
+        <!-- Cash / Percent Icon -->
+        <text x="34" y="43" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="800" fill="#34d399" text-anchor="middle">0%</text>
+        <text x="64" y="30" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#f8fafc" text-anchor="start">Zero Commission</text>
+        <text x="64" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="400" fill="#94a3b8" text-anchor="start">Direct to your wallet</text>
+      </g>
+
+      <!-- Card 2: No PAN / VAT -->
+      <g transform="translate(-225, 0)">
+        <rect x="0" y="0" width="215" height="74" rx="14" fill="url(#glassCard)" stroke="url(#borderGrad)" stroke-width="1" filter="url(#cardShadow)" />
+        <circle cx="34" cy="37" r="16" fill="#06b6d4" fill-opacity="0.15" />
+        <!-- Shield Check Icon -->
+        <path d="M 34 27 L 42 31 L 42 38 C 42 43 34 47 34 47 C 34 47 26 43 26 38 L 26 31 Z" fill="none" stroke="#22d3ee" stroke-width="1.6" />
+        <text x="64" y="30" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#f8fafc" text-anchor="start">No Merchant PAN</text>
+        <text x="64" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="400" fill="#94a3b8" text-anchor="start">Use personal eSewa</text>
+      </g>
+
+      <!-- Card 3: Instant Verification -->
+      <g transform="translate(10, 0)">
+        <rect x="0" y="0" width="215" height="74" rx="14" fill="url(#glassCard)" stroke="url(#borderGrad)" stroke-width="1" filter="url(#cardShadow)" />
+        <circle cx="34" cy="37" r="16" fill="#10b981" fill-opacity="0.15" />
+        <!-- Lightning Bolt Icon -->
+        <path d="M 36 26 L 29 36 L 34 36 L 32 46 L 40 35 L 35 35 Z" fill="#34d399" />
+        <text x="64" y="30" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#f8fafc" text-anchor="start">Instant Verification</text>
+        <text x="64" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="400" fill="#94a3b8" text-anchor="start">Automated email sync</text>
+      </g>
+
+      <!-- Card 4: All Nepali Banks -->
+      <g transform="translate(245, 0)">
+        <rect x="0" y="0" width="215" height="74" rx="14" fill="url(#glassCard)" stroke="url(#borderGrad)" stroke-width="1" filter="url(#cardShadow)" />
+        <circle cx="34" cy="37" r="16" fill="#818cf8" fill-opacity="0.15" />
+        <!-- Bank Column Icon -->
+        <path d="M 26 31 L 34 26 L 42 31 M 28 32 L 28 42 M 34 32 L 34 42 M 40 32 L 40 42 M 25 44 L 43 44" fill="none" stroke="#a5b4fc" stroke-width="1.6" />
+        <text x="64" y="30" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="13" font-weight="700" fill="#f8fafc" text-anchor="start">All Nepali Banks</text>
+        <text x="64" y="48" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="400" fill="#94a3b8" text-anchor="start">eSewa &amp; 20+ Banks</text>
+      </g>
+
+    </g>
+
+  </g>
+</svg>

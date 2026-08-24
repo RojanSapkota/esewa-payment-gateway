@@ -1,0 +1,26 @@
+version: "3.8"
+
+services:
+  esewa-gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: esewa_payment_gateway
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - gateway_data:/app/data
+    environment:
+      - DATABASE_PATH=/app/data/payment_gateway.db
+      - PORT=8000
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  gateway_data:

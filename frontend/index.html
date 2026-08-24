@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>eSewa Payment Checkout</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+  <header>
+    <div class="logo-group">
+      <div class="logo-badge">eSewa</div>
+      <div class="header-title">Payment Gateway</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="card" id="payment-card">
+      
+      <!-- STEP 1: INITIAL CHECKOUT FORM -->
+      <div id="step-cart">
+        <div class="card-header">
+          <div class="card-title">Order Checkout</div>
+          <div class="card-subtitle">Select payment method to generate exact QR</div>
+        </div>
+        <div class="card-body">
+          <div id="env-alert" class="hidden" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 12px; padding: 12px; margin-bottom: 18px; font-size: 0.82rem; color: #fbbf24;">
+            <strong>Notice:</strong> <span id="env-alert-text">Configuration missing in .env. Running in simulation mode.</span>
+          </div>
+
+          <form id="order-form">
+            
+            <div class="form-group">
+              <label for="base-amount">
+                <span>Amount</span>
+                <span style="font-size: 0.75rem; color: var(--text-sub);">NPR</span>
+              </label>
+              <div class="input-affix-wrapper">
+                <span class="input-prefix">Rs.</span>
+                <input type="number" id="base-amount" value="100" min="1" step="any" required />
+              </div>
+              <div class="amount-presets">
+                <button type="button" class="preset-btn active" data-amt="100">100</button>
+                <button type="button" class="preset-btn" data-amt="250">250</button>
+                <button type="button" class="preset-btn" data-amt="500">500</button>
+                <button type="button" class="preset-btn" data-amt="1000">1000</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="bank-select">Payment Source *</label>
+              <select id="bank-select" required>
+                <option value="" disabled selected>Select Bank or eSewa</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="customer-name">Payer Name</label>
+              <input type="text" id="customer-name" placeholder="Optional" value="" />
+            </div>
+
+            <button type="submit" class="btn-primary" id="btn-create-order">
+              <span>Generate Payment QR</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- STEP 2: ACTIVE QR & REAL-TIME SCANNER -->
+      <div id="step-payment" class="hidden">
+        <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div class="card-title" style="font-size: 1.05rem;">Scan &amp; Pay</div>
+            <div class="card-subtitle" style="font-size: 0.8rem;" id="selected-bank-label">eSewa Direct Wallet</div>
+          </div>
+          <span class="timer-badge" id="countdown-timer">10:00</span>
+        </div>
+
+        <div class="card-body">
+          
+          <!-- Exact Price Display -->
+          <div class="amount-display">
+            <div class="amount-label">Amount to Pay</div>
+            <div class="target-price">
+              <span id="display-target-amount">NPR 100.00</span>
+            </div>
+            <div>
+              <div class="copy-badge" id="btn-copy-amount" title="Copy amount">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy Amount (<strong id="copy-amount-val">100.00</strong>)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dynamic QR Container -->
+          <div class="qr-container-outer">
+            <div class="qr-box">
+              <div id="qrcode"></div>
+            </div>
+          </div>
+
+          <!-- Live WebSocket Status Pill -->
+          <div class="status-pill">
+            <span class="pulsing-dot"></span>
+            <span>Awaiting payment confirmation...</span>
+          </div>
+
+          <!-- Instructions Card -->
+          <div class="instructions-card">
+            Pay exact <strong><span id="instruction-amount">NPR 99.85</span></strong> via eSewa or Mobile Banking. The transaction verifies automatically.
+          </div>
+
+          <!-- Fallback Claim Section -->
+          <div class="fallback-section">
+            <button type="button" class="fallback-toggle-btn" id="btn-toggle-fallback">
+              Paid a different amount? Click here to claim
+            </button>
+            <div class="fallback-box" id="fallback-box">
+              <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 8px; color: var(--text-muted);">
+                Manual Verification
+              </div>
+              <div class="form-group" style="margin-bottom: 8px;">
+                <input type="number" id="fallback-amount" placeholder="Amount Paid (e.g. 100)" step="any" />
+              </div>
+              <div class="form-group" style="margin-bottom: 8px;">
+                <input type="text" id="fallback-ref" placeholder="Reference Code (Optional)" />
+              </div>
+              <button type="button" class="btn-primary" id="btn-claim-fallback" style="padding: 10px; font-size: 0.9rem;">
+                Verify Claim
+              </button>
+              <div id="fallback-msg" style="font-size: 0.8rem; margin-top: 6px; text-align: center;"></div>
+            </div>
+          </div>
+
+          <!-- Cancel / Change Order Button -->
+          <div style="margin-top: 16px; text-align: center;">
+            <button type="button" id="btn-cancel-order" class="btn-cancel">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              <span>Cancel &amp; Change Order</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- STEP 3: PAYMENT SUCCESS RECEIPT -->
+      <div id="step-success" class="hidden">
+        <div class="card-body">
+          <div class="success-wrapper">
+            <div class="success-icon-wrapper">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <div class="success-title">Payment Verified!</div>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">Your transaction has been confirmed.</p>
+
+            <div class="receipt-slip">
+              <div class="receipt-row">
+                <span class="receipt-label">Order ID</span>
+                <span class="receipt-value" id="receipt-order-id">-</span>
+              </div>
+              <div class="receipt-row">
+                <span class="receipt-label">Amount Paid</span>
+                <span class="receipt-value" id="receipt-amount" style="color: #34d399;">-</span>
+              </div>
+              <div class="receipt-row">
+                <span class="receipt-label">eSewa Reference Code</span>
+                <span class="receipt-value" id="receipt-ref">-</span>
+              </div>
+              <div class="receipt-row">
+                <span class="receipt-label">Source</span>
+                <span class="receipt-value" id="receipt-bank">-</span>
+              </div>
+              <div class="receipt-row">
+                <span class="receipt-label">Status</span>
+                <span class="receipt-value" style="color: #34d399; font-weight: 700;">PAID</span>
+              </div>
+            </div>
+
+            <button type="button" class="btn-primary" onclick="location.reload();">
+              Return to Checkout
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

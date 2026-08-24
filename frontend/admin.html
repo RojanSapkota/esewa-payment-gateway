@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Gateway Console</title>
+  <link rel="stylesheet" href="/static/style.css" />
+  <style>
+    /* Dedicated Admin Top Navigation */
+    .admin-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .admin-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .admin-nav-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--surface-light);
+      border: 1px solid var(--border);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .admin-nav-link:hover {
+      color: var(--text-main);
+      background: var(--surface-hover);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .admin-nav-link.logout {
+      color: #f87171;
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.25);
+    }
+
+    .admin-nav-link.logout:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #fff;
+    }
+
+    .admin-container {
+      max-width: 1100px;
+      width: 100%;
+      margin: 1.5rem auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Modern Table Design */
+    .table-responsive {
+      overflow-x: auto;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    .data-table th, .data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table th {
+      background: rgba(30, 41, 59, 0.6);
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+    }
+
+    .data-table tbody tr {
+      transition: background 0.15s ease;
+    }
+
+    .data-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .data-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Badges */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+    }
+
+    .status-badge.paid { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
+    .status-badge.pending { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; }
+    .status-badge.expired { background: rgba(148, 163, 184, 0.15); border: 1px solid rgba(148, 163, 184, 0.3); color: #94a3b8; }
+    .status-badge.unmatched { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; }
+
+    /* Health Info Grid */
+    .health-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .health-item {
+      background: var(--surface-light);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .health-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .health-val {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sleek Top Navigation Bar -->
+  <header class="admin-header">
+    <div class="logo-group">
+      <div class="logo-badge">eSewa</div>
+      <div class="header-title" style="font-size: 1.15rem;">Gateway Console</div>
+    </div>
+    <div class="admin-nav-actions">
+      <a href="/" class="admin-nav-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Checkout Page</span>
+      </a>
+      <button type="button" id="btn-refresh" class="admin-nav-link hidden" onclick="loadAdminData();">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <polyline points="1 20 1 14 7 14"></polyline>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+        </svg>
+        <span>Refresh</span>
+      </button>
+      <button type="button" id="btn-logout" class="admin-nav-link logout hidden" onclick="logoutAdmin();">
+        <span>Logout</span>
+      </button>
+    </div>
+  </header>
+
+  <main style="align-items: flex-start;">
+    
+    <!-- AUTHENTICATION GATE MODAL -->
+    <div id="auth-gate" class="card" style="margin: 40px auto; max-width: 420px;">
+      <div class="card-header">
+        <div class="card-title">Console Access</div>
+        <div class="card-subtitle">Enter the ADMIN_PASSWORD configured in .env</div>
+      </div>
+      <div class="card-body">
+        <form id="admin-login-form">
+          <div class="form-group">
+            <label for="admin-password-input">Password</label>
+            <input type="password" id="admin-password-input" placeholder="Enter ADMIN_PASSWORD" required />
+          </div>
+          <button type="submit" class="btn-primary" id="btn-login" style="padding: 13px;">
+            Unlock Console
+          </button>
+          <div id="login-error" style="color: var(--danger); font-size: 0.82rem; margin-top: 10px; text-align: center; font-weight: 500;"></div>
+        </form>
+      </div>
+    </div>
+
+    <!-- PROTECTED CONSOLE CONTENT -->
+    <div id="console-content" class="admin-container hidden">
+
+      <!-- System Health & Status Card -->
+      <div class="card" style="max-width: 100%;">
+        <div class="card-header">
+          <div class="card-title">System Status &amp; Configuration</div>
+        </div>
+        <div class="card-body" id="health-info">
+          <p style="color: var(--text-muted);">Loading system status...</p>
+        </div>
+      </div>
+
+      <!-- Recent Orders Card -->
+      <div class="card" style="max-width: 100%;">
+        <div class="card-header">
+          <div class="card-title">Recent Orders</div>
+          <div class="card-subtitle">Orders generated through the checkout interface</div>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Amount (Base &rarr; Target)</th>
+                  <th>Payment Source</th>
+                  <th>Payer IP</th>
+                  <th>Status</th>
+                  <th>Matched Ref Code</th>
+                  <th>Created At</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table-body">
+                <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">Loading orders...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Parsed eSewa Transactions Card -->
+      <div class="card" style="max-width: 100%;">
+        <div class="card-header">
+          <div class="card-title">Parsed eSewa Receipts</div>
+          <div class="card-subtitle">Incoming transaction confirmation emails parsed via Gmail IMAP</div>
+        </div>
+        <div class="card-body" style="padding: 0;">
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Reference Code</th>
+                  <th>Amount</th>
+                  <th>Source</th>
+                  <th>Receipt Timestamp</th>
+                  <th>Matching Status</th>
+                  <th>Linked Order</th>
+                </tr>
+              </thead>
+              <tbody id="txs-table-body">
+                <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">Loading transactions...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script>
+    function getAdminPassword() {
+      return sessionStorage.getItem("esewa_admin_pass") || "";
+    }
+
+    function setAdminPassword(password) {
+      sessionStorage.setItem("esewa_admin_pass", password);
+    }
+
+    function logoutAdmin() {
+      sessionStorage.removeItem("esewa_admin_pass");
+      location.reload();
+    }
+
+    document.getElementById("admin-login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const pwd = document.getElementById("admin-password-input").value.trim();
+      const btn = document.getElementById("btn-login");
+      const errBox = document.getElementById("login-error");
+      
+      btn.disabled = true;
+      btn.textContent = "Verifying...";
+      errBox.textContent = "";
+
+      try {
+        const res = await fetch("/api/admin/login", {
+          method: "POST",
+          headers: { "X-Admin-Password": pwd }
+        });
+        if (res.ok) {
+          setAdminPassword(pwd);
+          showConsole();
+        } else {
+          errBox.textContent = "Invalid password. Please check ADMIN_PASSWORD in your .env";
+        }
+      } catch (err) {
+        errBox.textContent = "Unable to connect to server.";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Unlock Console";
+      }
+    });
+
+    function showConsole() {
+      document.getElementById("auth-gate").classList.add("hidden");
+      document.getElementById("console-content").classList.remove("hidden");
+      document.getElementById("btn-refresh").classList.remove("hidden");
+      document.getElementById("btn-logout").classList.remove("hidden");
+      loadAdminData();
+    }
+
+    async function loadAdminData() {
+      const pwd = getAdminPassword();
+      const headers = { "X-Admin-Password": pwd };
+
+      // 1. Health Status
+      try {
+        const healthRes = await fetch("/api/health");
+        const health = await healthRes.json();
+        document.getElementById("health-info").innerHTML = `
+          <div class="health-grid">
+            <div class="health-item">
+              <span class="health-label">System State</span>
+              <span class="health-val" style="color: #34d399;">● Online</span>
+            </div>
+            <div class="health-item">
+              <span class="health-label">Email Listener</span>
+              <span class="health-val">${health.listener_running ? '<span style="color: #34d399;">Active (Polling IMAP)</span>' : '<span style="color: #fbbf24;">Standby / Simulation</span>'}</span>
+            </div>
+            <div class="health-item">
+              <span class="health-label">Receiver eSewa ID</span>
+              <span class="health-val"><code>${health.esewa_id}</code></span>
+            </div>
+            <div class="health-item">
+              <span class="health-label">Receiver Name</span>
+              <span class="health-val">${health.esewa_name}</span>
+            </div>
+          </div>
+        `;
+      } catch (e) {
+        console.error("Health fetch error:", e);
+      }
+
+      // 2. Orders Table
+      try {
+        const ordersRes = await fetch("/api/admin/orders", { headers });
+        if (ordersRes.status === 401) {
+          logoutAdmin();
+          return;
+        }
+        const ordersData = await ordersRes.json();
+        const tbody = document.getElementById("orders-table-body");
+        if (!ordersData.orders || ordersData.orders.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">No orders found in database.</td></tr>';
+        } else {
+          tbody.innerHTML = ordersData.orders.map(o => `
+            <tr>
+              <td><strong style="font-family: monospace; color: var(--text-main);">${o.id}</strong></td>
+              <td>NPR ${o.base_amount.toFixed(2)} &rarr; <strong style="color: #34d399;">NPR ${o.target_amount.toFixed(2)}</strong></td>
+              <td>${o.bank_name}</td>
+              <td><code style="font-size: 0.8rem; color: #94a3b8; background: var(--surface-light); padding: 2px 6px; border-radius: 4px;">${o.ip_address || '127.0.0.1'}</code></td>
+              <td><span class="status-badge ${o.status.toLowerCase()}">${o.status}</span></td>
+              <td><code>${o.matched_ref_code || '-'}</code></td>
+              <td style="color: var(--text-muted);">${new Date(o.created_at).toLocaleString()}</td>
+            </tr>
+          `).join("");
+        }
+      } catch (e) {
+        console.error("Orders fetch error:", e);
+      }
+
+      // 3. Transactions Table
+      try {
+        const txRes = await fetch("/api/admin/transactions", { headers });
+        if (txRes.status === 401) {
+          logoutAdmin();
+          return;
+        }
+        const txData = await txRes.json();
+        const tbody = document.getElementById("txs-table-body");
+        if (!txData.transactions || txData.transactions.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 24px;">No incoming eSewa receipts parsed yet.</td></tr>';
+        } else {
+          tbody.innerHTML = txData.transactions.map(t => `
+            <tr>
+              <td><code>${t.ref_code}</code></td>
+              <td><strong style="color: #34d399;">NPR ${t.amount.toFixed(2)}</strong></td>
+              <td>${t.bank_name || 'eSewa'}</td>
+              <td style="color: var(--text-muted);">${t.transaction_time || '-'}</td>
+              <td><span class="status-badge ${t.is_matched ? 'paid' : 'unmatched'}">${t.is_matched ? 'MATCHED' : 'UNMATCHED'}</span></td>
+              <td><strong>${t.matched_order_id || '-'}</strong></td>
+            </tr>
+          `).join("");
+        }
+      } catch (e) {
+        console.error("Transactions fetch error:", e);
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const pwd = getAdminPassword();
+      if (pwd) {
+        showConsole();
+      }
+    });
+  </script>
+</body>
+</html>
