@@ -257,6 +257,11 @@ class EsewaGateway:
         self.gmail_app_password = (gmail_app_password or os.getenv("GMAIL_APP_PASSWORD", "")).strip()
         self.esewa_id = (esewa_id or os.getenv("ESEWA_ID", "")).strip()
         self.esewa_name = (esewa_name or os.getenv("ESEWA_NAME", "")).strip()
+        self.admin_password = (admin_password or os.getenv("ADMIN_PASSWORD", "")).strip()
+        self.webhook_url = (webhook_url or os.getenv("WEBHOOK_URL", "")).strip()
+        self.webhook_secret = (webhook_secret or os.getenv("WEBHOOK_SECRET", "")).strip()
+        self.database_path = database_path or os.getenv("DATABASE_PATH", str(Path.cwd() / "payment_gateway.db"))
+
         self.order_expiry_minutes = int(os.getenv("ORDER_EXPIRY_MINUTES", str(order_expiry_minutes)))
         try:
             self.discount_min_offset = float(os.getenv("DISCOUNT_MIN_OFFSET", str(discount_min_offset)))
