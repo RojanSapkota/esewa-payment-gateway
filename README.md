@@ -27,6 +27,7 @@
 ## Highlights
 
 - **Zero Transaction Fees & No Merchant Registration** — Automate payments using your existing personal eSewa ID without merchant onboarding charges or revenue cuts.
+- **Micro-Discount Matching Algorithm** — Dynamically generates unique sub-rupee amounts (e.g. NPR `99.85` for a `100.00` base order) to guarantee collision-free 1:1 transaction matching across simultaneous payers.
 - **Dynamic QR Code Generation** — Generates real-time QR codes embedding the exact payment amount, recipient details, and order reference codes.
 - **Universal Nepali Bank Support** — Matches payments made from eSewa direct wallet transfers, Mobile Banking Fund Loads (Global IME, NIC Asia, Nabil, NIMB, Sanima, etc.), and Fonepay interoperable QRs.
 - **Single-File Backend Architecture** — The entire backend (REST API, WebSockets, IMAP listener, SQLite WAL manager, and webhook dispatcher) is contained in a single standalone file `esewa_gateway.py`.

@@ -420,6 +420,42 @@ class EsewaGateway:
     # --- Order Management Methods ---
 
     async def generate_unique_target_amount(self, base_amount: float) -> Tuple[float, float]:
+        """
+        Generates a collision-free micro-discounted target amount in paisa
+        (e.g., NPR 100.00 -> NPR 99.85 with discount NPR 0.15).
+        Ensures multiple concurrent orders of the same base amount never collide.
+        """
+        now_iso = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        async with self.get_db() as conn:
+            conn.row_factory = aiosqlite.Row
+            cursor = await conn.execute(
+                "SELECT target_amount FROM orders WHERE status = 'PENDING' AND expires_at > ?",
+                (now_iso,)
+            )
+            rows = await cursor.fetchall()
+            used_targets = {round(r["target_amount"], 2) for r in rows}
+
+        min_paisa = int(round(self.discount_min_offset * 100))
+        max_paisa = int(round(self.discount_max_offset * 100))
+        if max_paisa < min_paisa:
+            max_paisa = min_paisa
+
+        possible_paisa = list(range(min_paisa, max_paisa + 1))
+        random.shuffle(possible_paisa)
+
+        for paisa in possible_paisa:
+            discount = round(paisa / 100.0, 2)
+            target = round(base_amount - discount, 2)
+            if target > 0 and target not in used_targets:
+                return target, discount
+
+        # Fallback: find any free 2-decimal paisa offset between 0.01 and 0.99
+        for extra in range(1, 100):
+            discount = round(extra / 100.0, 2)
+            target = round(base_amount - discount, 2)
+            if target > 0 and target not in used_targets:
+                return target, discount
+
         return round(base_amount, 2), 0.0
 
     async def create_order(
@@ -435,12 +471,11 @@ class EsewaGateway:
         expires_at = now + timedelta(minutes=self.order_expiry_minutes)
         order_id = f"ORD-{uuid.uuid4().hex[:8].upper()}"
 
-        target_amount = round(base_amount, 2)
-        discount_amount = 0.0
+        target_amount, discount_amount = await self.generate_unique_target_amount(base_amount)
 
         order_data = {
             "id": order_id,
-            "base_amount": target_amount,
+            "base_amount": round(base_amount, 2),
             "target_amount": target_amount,
             "discount_amount": discount_amount,
             "bank_name": bank_name,

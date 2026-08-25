@@ -17,6 +17,7 @@ const bankSelect = document.getElementById("bank-select");
 const customerNameInput = document.getElementById("customer-name");
 
 const displayTargetAmount = document.getElementById("display-target-amount");
+const displayBaseAmount = document.getElementById("display-base-amount");
 const copyAmountVal = document.getElementById("copy-amount-val");
 const btnCopyAmount = document.getElementById("btn-copy-amount");
 const instructionAmount = document.getElementById("instruction-amount");
@@ -173,12 +174,19 @@ function showPaymentStep(order) {
   stepPayment.classList.remove("hidden");
   stepSuccess.classList.add("hidden");
 
-  displayTargetAmount.textContent = `NPR ${order.base_amount.toFixed(2)}`;
-  copyAmountVal.textContent = order.base_amount.toFixed(2);
-  instructionAmount.textContent = `NPR ${order.base_amount.toFixed(2)}`;
+  const targetAmt = typeof order.target_amount === "number" ? order.target_amount : order.base_amount;
+  const baseAmt = typeof order.base_amount === "number" ? order.base_amount : targetAmt;
+
+  displayTargetAmount.textContent = `NPR ${targetAmt.toFixed(2)}`;
+  if (displayBaseAmount) {
+    displayBaseAmount.textContent = `NPR ${baseAmt.toFixed(2)}`;
+    displayBaseAmount.style.display = (targetAmt !== baseAmt) ? "inline" : "none";
+  }
+  copyAmountVal.textContent = targetAmt.toFixed(2);
+  instructionAmount.textContent = `NPR ${targetAmt.toFixed(2)}`;
   selectedBankLabel.textContent = order.bank_name;
   
-  fallbackAmountInput.value = order.base_amount.toFixed(2);
+  fallbackAmountInput.value = targetAmt.toFixed(2);
 
   // Render QR Code
   const qrContainer = document.getElementById("qrcode");
@@ -186,7 +194,7 @@ function showPaymentStep(order) {
   const payload = order.qr_payload || JSON.stringify({
     eSewa_id: order.esewa_id || "",
     name: order.esewa_name || "",
-    amount: order.base_amount || order.target_amount,
+    amount: targetAmt,
     remarks: order.id
   });
   qrCodeInstance = new QRCode(qrContainer, {
@@ -236,7 +244,7 @@ async function restoreSavedSession() {
       } else if (liveOrder.status === "PAID") {
         showSuccessStep({
           order_id: liveOrder.id,
-          amount_paid: liveOrder.base_amount,
+          amount_paid: liveOrder.target_amount || liveOrder.base_amount,
           ref_code: liveOrder.matched_ref_code || "VERIFIED",
           bank_name: liveOrder.bank_name
         });
@@ -272,7 +280,8 @@ if (btnCancelOrder) {
 // 7. Copy Exact Amount
 btnCopyAmount.addEventListener("click", () => {
   if (!currentOrder) return;
-  const amtStr = currentOrder.base_amount.toFixed(2);
+  const targetAmt = typeof currentOrder.target_amount === "number" ? currentOrder.target_amount : currentOrder.base_amount;
+  const amtStr = targetAmt.toFixed(2);
   navigator.clipboard.writeText(amtStr).then(() => {
     const originalHtml = btnCopyAmount.innerHTML;
     btnCopyAmount.innerHTML = `
