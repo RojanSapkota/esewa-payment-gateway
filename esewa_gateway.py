@@ -257,16 +257,24 @@ class EsewaGateway:
         self.gmail_app_password = (gmail_app_password or os.getenv("GMAIL_APP_PASSWORD", "")).strip()
         self.esewa_id = (esewa_id or os.getenv("ESEWA_ID", "")).strip()
         self.esewa_name = (esewa_name or os.getenv("ESEWA_NAME", "")).strip()
-        self.admin_password = (admin_password or os.getenv("ADMIN_PASSWORD", "")).strip()
-        self.webhook_url = (webhook_url or os.getenv("WEBHOOK_URL", "")).strip()
-        self.webhook_secret = (webhook_secret or os.getenv("WEBHOOK_SECRET", "")).strip()
-        self.database_path = database_path or os.getenv("DATABASE_PATH", str(Path.cwd() / "payment_gateway.db"))
-        self.order_expiry_minutes = order_expiry_minutes
-        self.discount_min_offset = discount_min_offset
-        self.discount_max_offset = discount_max_offset
-        self.imap_server = imap_server
-        self.imap_port = imap_port
-        self.poll_interval = poll_interval
+        self.order_expiry_minutes = int(os.getenv("ORDER_EXPIRY_MINUTES", str(order_expiry_minutes)))
+        try:
+            self.discount_min_offset = float(os.getenv("DISCOUNT_MIN_OFFSET", str(discount_min_offset)))
+        except (ValueError, TypeError):
+            self.discount_min_offset = 0.01
+        try:
+            self.discount_max_offset = float(os.getenv("DISCOUNT_MAX_OFFSET", str(discount_max_offset)))
+        except (ValueError, TypeError):
+            self.discount_max_offset = 0.50
+
+        if self.discount_min_offset <= 0:
+            self.discount_min_offset = 0.01
+        if self.discount_max_offset < self.discount_min_offset:
+            self.discount_max_offset = self.discount_min_offset
+
+        self.imap_server = os.getenv("IMAP_SERVER", imap_server)
+        self.imap_port = int(os.getenv("IMAP_PORT", str(imap_port)))
+        self.poll_interval = int(os.getenv("IMAP_POLL_INTERVAL", str(poll_interval)))
 
         self._check_configuration()
 

@@ -174,13 +174,18 @@ function showPaymentStep(order) {
   stepPayment.classList.remove("hidden");
   stepSuccess.classList.add("hidden");
 
-  const targetAmt = typeof order.target_amount === "number" ? order.target_amount : order.base_amount;
-  const baseAmt = typeof order.base_amount === "number" ? order.base_amount : targetAmt;
+  const targetAmt = parseFloat(order.target_amount !== undefined ? order.target_amount : order.base_amount);
+  const baseAmt = parseFloat(order.base_amount !== undefined ? order.base_amount : targetAmt);
 
   displayTargetAmount.textContent = `NPR ${targetAmt.toFixed(2)}`;
   if (displayBaseAmount) {
-    displayBaseAmount.textContent = `NPR ${baseAmt.toFixed(2)}`;
-    displayBaseAmount.style.display = (targetAmt !== baseAmt) ? "inline" : "none";
+    if (Math.abs(targetAmt - baseAmt) >= 0.009) {
+      displayBaseAmount.textContent = `NPR ${baseAmt.toFixed(2)}`;
+      displayBaseAmount.style.display = "inline";
+    } else {
+      displayBaseAmount.textContent = "";
+      displayBaseAmount.style.display = "none";
+    }
   }
   copyAmountVal.textContent = targetAmt.toFixed(2);
   instructionAmount.textContent = `NPR ${targetAmt.toFixed(2)}`;
